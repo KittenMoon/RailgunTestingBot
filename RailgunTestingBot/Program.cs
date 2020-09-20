@@ -64,7 +64,7 @@ namespace RailgunTestingBot
                 //ShowWindow(handle, SW_HIDE);
 
                 n = new NotifyIcon();
-                n.Icon = Resources.weather;
+                //n.Icon = Resources.weather;
                 n.Text = "Railgun Running (Click for Console)";
                 n.Visible = true;
 
