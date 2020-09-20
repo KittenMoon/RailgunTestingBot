@@ -33,7 +33,7 @@ namespace RailgunTestingBot
         private string folder = @"D:\One Drive\OneDrive - CenterLynx Corporation\Programs Storage\File Storage";
         private string folder2 = @"C:\Users\srgri\OneDrive - CenterLynx Corporation\Programs Storage\File Storage";
 
-        private List<BotSavedInfo> botssaves;
+        private BotSavedInfo botssaves;
 
         NotifyIcon n;
 
@@ -57,8 +57,6 @@ namespace RailgunTestingBot
             // environment variables, you may find more information on the 
             // Internet or by using other methods such as reading from 
             // a configuration.
-            await _client.LoginAsync(TokenType.Bot, "NzUzMzY0NTUzOTE1Njk1MTU1.X1lHag.Ka8E0RcfjSfp2WRvmCx1YD5YrJI");
-            await _client.StartAsync();
             
             if (first)
             {
@@ -66,7 +64,7 @@ namespace RailgunTestingBot
                 //ShowWindow(handle, SW_HIDE);
 
                 n = new NotifyIcon();
-                //n.Icon = Resources.weather;
+                n.Icon = Resources.weather;
                 n.Text = "Railgun Running (Click for Console)";
                 n.Visible = true;
 
@@ -76,6 +74,9 @@ namespace RailgunTestingBot
 
                 first = false;
             }
+
+            await _client.LoginAsync(TokenType.Bot, botssaves.auth);
+            await _client.StartAsync();
 
             _client.GuildAvailable += TestGUI;
 
@@ -124,7 +125,7 @@ namespace RailgunTestingBot
             }
         }
 
-        private List<BotSavedInfo> Load()
+        private BotSavedInfo Load()
         {
             DirectoryInfo dinfo = null;
             FileInfo file = null;
@@ -144,29 +145,29 @@ namespace RailgunTestingBot
 
             var resp = fileInfoString;
 
-            List<BotSavedInfo> response = null;
-            response = JsonConvert.DeserializeObject<List<BotSavedInfo>>(resp);
+            BotSavedInfo response = null;
+            response = JsonConvert.DeserializeObject<BotSavedInfo>(resp);
 
             fileInfo.Close();
 
             if (response == null)
-                response = new List<BotSavedInfo>();
+                response = new BotSavedInfo();
 
             return response;
         }
 
         private async Task TestGUI(SocketGuild guil)
         {
-            BotSavedInfo bsu = null;
+            GuildInfo bsu = null;
 
-            if(botssaves.Where(d => d.guildid == guil.Id).ToList().Count == 0)
+            if(botssaves.GGs.Where(d => d.guildid == guil.Id).ToList().Count == 0)
             {
-                bsu = new BotSavedInfo(guil.Id);
-                botssaves.Add(bsu);
+                bsu = new GuildInfo(guil.Id);
+                botssaves.GGs.Add(bsu);
             }
             else
             {
-                bsu = botssaves.Where(d => d.guildid == guil.Id).ToList()[0];
+                bsu = botssaves.GGs.Where(d => d.guildid == guil.Id).ToList()[0];
             }
 
             for (int i = 0; i < bsu.rs.Count; i++)
@@ -247,7 +248,7 @@ namespace RailgunTestingBot
             IGuild gg = (user as IGuildUser).Guild;
             IChannel chai = message.Channel;
 
-            BotSavedInfo bsu = GetBSUFromID(gg.Id);
+            GuildInfo bsu = GetBSUFromID(gg.Id);
             RoleSelector rsMain = GetRoleSelector(bsu, chai.Id);
 
             ulong messageSelectorID = rsMain.storemessageid;
@@ -362,7 +363,7 @@ namespace RailgunTestingBot
             IChannel chani = message.Channel;
             IGuild guil = sg.Guild;
 
-            BotSavedInfo thisGuildInfo = GetBSUFromID(guil.Id);
+            GuildInfo thisGuildInfo = GetBSUFromID(guil.Id);
             RoleSelector rsMain = GetRoleSelector(thisGuildInfo, chani.Id);
 
             ulong messageSelectorID = rsMain.storemessageid;
@@ -666,7 +667,7 @@ namespace RailgunTestingBot
             }
         }
 
-        private RoleSelector GetRoleSelector(BotSavedInfo thisGuildInfo, ulong id)
+        private RoleSelector GetRoleSelector(GuildInfo thisGuildInfo, ulong id)
         {
             if (thisGuildInfo.rs.Where(d => d.messagechannel == id).ToList().Count > 0)
             {
@@ -707,16 +708,16 @@ namespace RailgunTestingBot
             return false;
         }
 
-        private BotSavedInfo GetBSUFromID(ulong id)
+        private GuildInfo GetBSUFromID(ulong id)
         {
-            if (botssaves.Where(d => d.guildid == id).ToList().Count > 0)
+            if (botssaves.GGs.Where(d => d.guildid == id).ToList().Count > 0)
             {
-                 return botssaves.Where(d => d.guildid == id).ToList()[0];
+                 return botssaves.GGs.Where(d => d.guildid == id).ToList()[0];
             }
             else
             {
-                BotSavedInfo bnew = new BotSavedInfo(id);
-                botssaves.Add(bnew);
+                GuildInfo bnew = new GuildInfo(id);
+                botssaves.GGs.Add(bnew);
 
                 return bnew;
             }

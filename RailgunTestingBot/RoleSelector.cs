@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RailgunTestingBot
 {
-    class RoleSelector
+    public class RoleSelector
     {
         public ulong storemessageid { get; set; }
 
